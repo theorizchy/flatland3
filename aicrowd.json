@@ -1,0 +1,9 @@
+{
+  "challenge_id": "flatland-3",
+  "grader_id": "flatland-3",
+  "authors" : ["Adrian Egli"],
+  "description" : "Deadlock avoidance agent test",
+  "debug": false,
+  "tags": ["RL"]
+}
+

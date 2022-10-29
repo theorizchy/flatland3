@@ -1,0 +1,21 @@
+# This sweep file can be used to run hyper-parameter search using Weight & Biases tools
+# See: https://docs.wandb.com/sweeps
+program: reinforcement_learning/multi_agent_training.py
+method: bayes
+metric:
+    name: evaluation/smoothed_score
+    goal: maximize
+parameters:
+    n_episodes:
+        values: [2000]
+    hidden_size:
+        # default: 256
+        values: [128, 256, 512]
+    buffer_size:
+        # default: 50000
+        values: [50000, 100000, 500000, 1000000]
+    batch_size:
+        # default: 32
+        values: [16, 32, 64, 128]
+    training_env_config:
+        values: [0, 1, 2]

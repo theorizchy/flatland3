@@ -1,0 +1,6 @@
+redis-server
+conda activate flatland3-rl # environment needs to be activated in each new tab
+export AICROWD_TESTS_FOLDER=./scratch/test-envs/
+python run.py
+
+redis-cli -c "flushall"; flatland-evaluator --tests ./scratch/test-envs/ --shuffle False
