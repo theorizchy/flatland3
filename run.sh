@@ -1,3 +1,4 @@
 #!/bin/bash
 
-python ./run.py
+# python baselines/run.py
+python random_agent.py

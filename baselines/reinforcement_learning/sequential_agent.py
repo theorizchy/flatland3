@@ -1,12 +1,11 @@
 import sys
-import PIL
 import numpy as np
 
 from flatland.envs.observations import TreeObsForRailEnv
 from flatland.envs.predictions import ShortestPathPredictorForRailEnv
 from flatland.envs.rail_env import RailEnv
-from flatland.envs.rail_generators import sparse_rail_generator
-from flatland.envs.line_generators import sparse_line_generator
+from flatland.envs.rail_generators import complex_rail_generator
+from flatland.envs.schedule_generators import complex_schedule_generator
 from flatland.utils.rendertools import RenderTool
 from pathlib import Path
 
@@ -24,29 +23,36 @@ multi_agent_training.py is a better starting point to train your own solution!
 
 np.random.seed(2)
 
-x_dim = np.random.randint(30, 35)
-y_dim = np.random.randint(30, 35)
+x_dim = np.random.randint(8, 20)
+y_dim = np.random.randint(8, 20)
 n_agents = np.random.randint(3, 8)
+n_goals = n_agents + np.random.randint(0, 3)
+min_dist = int(0.75 * min(x_dim, y_dim))
 
 env = RailEnv(
     width=x_dim,
     height=y_dim,
-    rail_generator=sparse_rail_generator(),
-    line_generator=sparse_line_generator(),
+    rail_generator=complex_rail_generator(
+        nr_start_goal=n_goals, nr_extra=5, min_dist=min_dist,
+        max_dist=99999,
+        seed=0
+    ),
+    schedule_generator=complex_schedule_generator(),
     obs_builder_object=TreeObsForRailEnv(max_depth=1, predictor=ShortestPathPredictorForRailEnv()),
     number_of_agents=n_agents)
 env.reset(True, True)
 
+tree_depth = 1
+observation_helper = TreeObsForRailEnv(max_depth=tree_depth, predictor=ShortestPathPredictorForRailEnv())
 env_renderer = RenderTool(env, gl="PGL", )
 handle = env.get_agent_handles()
-n_episodes = 1
+n_episodes = 10
 max_steps = 100 * (env.height + env.width)
-record_images = True
+record_images = False
 policy = OrderedPolicy()
 action_dict = dict()
-frame_list = []
-for trials in range(1, n_episodes + 1):
 
+for trials in range(1, n_episodes + 1):
     # Reset environment
     obs, info = env.reset(True, True)
     done = env.dones
@@ -55,10 +61,10 @@ for trials in range(1, n_episodes + 1):
 
     # Run episode
     for step in range(max_steps):
-        env_renderer.render_env(show=False, show_observations=False, show_predictions=True)
+        env_renderer.render_env(show=True, show_observations=False, show_predictions=True)
 
         if record_images:
-            frame_list.append(PIL.Image.fromarray(env_renderer.gl.get_image()))
+            env_renderer.gl.save_image("./Images/flatland_frame_{:04d}.bmp".format(frame_step))
             frame_step += 1
 
         # Action
@@ -76,8 +82,4 @@ for trials in range(1, n_episodes + 1):
         obs, all_rewards, done, _ = env.step(action_dict)
 
         if done['__all__']:
-            print(done)
-            if record_images:
-                frame_list[0].save(f"flatland_sequential_agent_{trials}.gif", save_all=True, append_images=frame_list[1:], duration=3, loop=0)
-                frame_list=[]
             break
