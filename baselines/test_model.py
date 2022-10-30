@@ -25,7 +25,7 @@ from reinforcement_learning.dddqn_policy import DDDQNPolicy
 from utils.observation_utils import normalize_observation
 
 ##################### TO CHANGE ####################
-checkpoint = "checkpoints/sample-checkpoint.pth"
+checkpoint = "checkpoints/221029180929-19900.pth"
 n_agents = 5
 x_dim = 30
 y_dim = 30
@@ -77,11 +77,7 @@ observation_tree_depth = 2
 observation_radius = 10
 observation_max_path_depth = 30
 
-use_gpu = True
-if checkpoint == "checkpoints/sample-checkpoint.pth":
-    use_gpu = False
 if not os.path.isfile(checkpoint):
-    use_gpu = False
     print("[WARNING] Checkpoint not found, using untrained policy! (path: {})".format(checkpoint))
 
 
@@ -96,10 +92,10 @@ state_size = tree_observation.observation_dim * n_nodes
 action_size = 5
 
 # Creates the policy. No GPU on evaluation server.
-policy = DDDQNPolicy(state_size, action_size, Namespace(**{'use_gpu': use_gpu}), evaluation_mode=True)
+policy = DDDQNPolicy(state_size, action_size, Namespace(**{'use_gpu': False}), evaluation_mode=True)
 
 if os.path.isfile(checkpoint):
-    policy.qnetwork_local = torch.load(checkpoint)
+    policy.qnetwork_local = torch.load(checkpoint, map_location="cpu")
 ###########################################################################
 
 
