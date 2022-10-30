@@ -116,8 +116,8 @@ def train_agent(train_params, train_env_params, eval_env_params, obs_params):
     eval_env = create_rail_env(eval_env_params, tree_observation)
 
     # Setup renderer
-    if train_params.render:
-        env_renderer = RenderTool(train_env, gl="PGL")
+    # if train_params.render:
+    #     env_renderer = RenderTool(train_env, gl="PGL")
 
     # Calculate the state size given the depth of the tree observation and the number of features
     n_features_per_node = train_env.obs_builder.observation_dim
@@ -153,7 +153,12 @@ def train_agent(train_params, train_env_params, eval_env_params, obs_params):
         print("⚠️  Careful! Saving replay buffers will quickly consume a lot of disk space. You have {:.2f}gb left.".format(hdd.free / (2 ** 30)))
 
     # TensorBoard writer
-    writer = SummaryWriter()
+    filename = "lr_{}-gamma_{}-bufSize_{}-batchSize_{}-tau_{}-updEvery_{}-epsDecay_{}_hiddenSize_{}".format(
+                        training_params.learning_rate, training_params.gamma, training_params.buffer_size,
+                        training_params.batch_size, training_params.tau, training_params.update_every,
+                        training_params.eps_decay, training_params.hidden_size
+                    )
+    writer = SummaryWriter(filename)
     writer.add_hparams(vars(train_params), {})
     writer.add_hparams(vars(train_env_params), {})
     writer.add_hparams(vars(obs_params), {})
@@ -192,6 +197,9 @@ def train_agent(train_params, train_env_params, eval_env_params, obs_params):
         update_values = [False] * n_agents
 
         if train_params.render:
+            if episode_idx != 0:
+                env_renderer.close_window()
+            env_renderer = RenderTool(train_env, gl="PGL")
             env_renderer.set_new_rail()
 
         score = 0
@@ -232,8 +240,8 @@ def train_agent(train_params, train_env_params, eval_env_params, obs_params):
                 env_renderer.render_env(
                     show=True,
                     frames=False,
-                    show_observations=False,
-                    show_predictions=False
+                    show_observations=True,
+                    show_predictions=True
                 )
 
             # Update replay buffer and train agent
@@ -268,8 +276,8 @@ def train_agent(train_params, train_env_params, eval_env_params, obs_params):
         completion = tasks_finished / max(1, train_env.get_num_agents())
         normalized_score = score / (max_steps * train_env.get_num_agents())
 
-        # if no actions were ever taken possibly due to malfunction and so 
-        # - `actions_taken` is empty [], 
+        # if no actions were ever taken possibly due to malfunction and so
+        # - `actions_taken` is empty [],
         # - `np.sum(action_count)` is 0
         # Set action probs to count
         if (np.sum(action_count) > 0):
@@ -384,10 +392,10 @@ def eval_policy(env, policy, train_params, obs_params):
     for episode_idx in range(n_eval_episodes):
 
         obs, info = env.reset(regenerate_rail=True, regenerate_schedule=True)
-        
+
         max_steps = env._max_episode_steps
         action_dict = dict()
-        agent_obs = [None] * env.get_num_agents()    
+        agent_obs = [None] * env.get_num_agents()
 
         score = 0.0
 
