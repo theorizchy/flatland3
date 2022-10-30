@@ -153,7 +153,7 @@ def train_agent(train_params, train_env_params, eval_env_params, obs_params):
         print("⚠️  Careful! Saving replay buffers will quickly consume a lot of disk space. You have {:.2f}gb left.".format(hdd.free / (2 ** 30)))
 
     # TensorBoard writer
-    filename = "lr_{}-gamma_{}-bufSize_{}-batchSize_{}-tau_{}-updEvery_{}-epsDecay_{}_hiddenSize_{}".format(
+    filename = "./runs/lr_{}-gamma_{}-bufSize_{}-batchSize_{}-tau_{}-updEvery_{}-epsDecay_{}_hiddenSize_{}".format(
                         training_params.learning_rate, training_params.gamma, training_params.buffer_size,
                         training_params.batch_size, training_params.tau, training_params.update_every,
                         training_params.eps_decay, training_params.hidden_size
