@@ -117,7 +117,7 @@ state_size = tree_observation.observation_dim * n_nodes
 action_size = 5
 
 # Creates the policy. No GPU on evaluation server.
-policy = DDDQNPolicy(state_size, action_size, Namespace(**{'use_gpu': False}), evaluation_mode=True)
+policy = DDDQNPolicy(state_size, action_size, Namespace(**{'use_gpu': True}), evaluation_mode=True)
 
 if os.path.isfile(checkpoint):
     policy.qnetwork_local = torch.load(checkpoint)
@@ -134,44 +134,34 @@ env_creation_time = time.time() - time_start
 
 print("[INFO] Env Creation Time : ", env_creation_time)
 
-local_env = env
 nb_agents = len(env.agents)
-max_nb_steps = local_env._max_episode_steps
 
-tree_observation.set_env(local_env)
+tree_observation.set_env(env)
 tree_observation.reset()
 observation = tree_observation.get_many(list(range(nb_agents)))
 
 
 steps = 0
 
-# Bookkeeping
-time_taken_by_controller = []
-time_taken_per_step = []
-
-# Action cache: keep track of last observation to avoid running the same inferrence multiple times.
-# This only makes sense for deterministic policies.
-agent_last_obs = {}
-agent_last_action = {}
-nb_hit = 0
-
-
-env_renderer = RenderTool(local_env, gl="PGL")
-
-
+env_renderer = RenderTool(env, gl="PGL")
 
 max_steps = env._max_episode_steps
 action_dict = dict()
 agent_obs = [None] * env.get_num_agents()    
 
 score = 0.0
-
 final_step = 0
-
 for step in range(max_steps):
+    env_renderer.render_env(
+                    show=True,
+                    frames=False,
+                    show_observations=True,
+                    show_predictions=True
+    )
+    time.sleep(2)
     for agent in env.get_agent_handles():
         if obs[agent]:
-            agent_obs[agent] = normalize_observation(obs[agent], tree_depth=tree_depth, observation_radius=observation_radius)
+            agent_obs[agent] = normalize_observation(obs[agent], tree_depth=observation_tree_depth, observation_radius=observation_radius)
 
         action = 0
         if info['action_required'][agent]:
