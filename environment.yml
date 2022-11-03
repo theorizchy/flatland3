@@ -1,4 +1,4 @@
-name: flatland-rl
+name: flatland3-rl
 channels:
   - pytorch
   - conda-forge
@@ -11,3 +11,4 @@ dependencies:
   - pip:
       - tensorboard==2.3.0
       - tensorboardx==2.1
+      - flatland-rl
