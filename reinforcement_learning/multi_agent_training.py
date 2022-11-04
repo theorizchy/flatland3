@@ -553,7 +553,7 @@ def train_agent(train_params, train_env_params, eval_env_params, obs_params):
             writer.add_scalar("training/smoothed_deadlocked", np.mean(smoothed_deadlocked), episode_idx)
             writer.add_scalar("training/nb_steps", nb_steps, episode_idx)
             writer.add_scalar("training/n_agents", train_env_params.n_agents, episode_idx)
-            writer.add_histogram("actions/distribution", np.array(actions_taken), episode_idx)
+            # writer.add_histogram("actions/distribution", np.array(actions_taken), episode_idx)
             writer.add_scalar("actions/nothing", action_probs[RailEnvActions.DO_NOTHING], episode_idx)
             writer.add_scalar("actions/left", action_probs[RailEnvActions.MOVE_LEFT], episode_idx)
             writer.add_scalar("actions/forward", action_probs[RailEnvActions.MOVE_FORWARD], episode_idx)
