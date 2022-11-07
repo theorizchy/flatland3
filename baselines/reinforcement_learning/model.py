@@ -28,4 +28,7 @@ class DuelingQNetwork(nn.Module):
         adv = F.relu(self.fc2_adv(adv))
         adv = self.fc4_adv(adv)
 
+        # Dueling if uncommented
         return val + adv - adv.mean()
+        ## non dueling if uncommented
+        # return adv

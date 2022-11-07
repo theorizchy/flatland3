@@ -25,7 +25,7 @@ from reinforcement_learning.dddqn_policy import DDDQNPolicy
 from utils.observation_utils import normalize_observation
 
 ##################### TO CHANGE ####################
-checkpoint = "checkpoints/221029180929-19900.pth"
+checkpoint = "checkpoints/dueling_dqn.pth"
 n_agents = 5
 x_dim = 30
 y_dim = 30
@@ -114,14 +114,14 @@ observation = tree_observation.get_many(list(range(nb_agents)))
 
 
 steps = 0
-
 env_renderer = RenderTool(env, gl="PGL", screen_height=2160, screen_width=3840)
 
 max_steps = env._max_episode_steps
 action_dict = dict()
-agent_obs = [None] * env.get_num_agents()    
+agent_obs = [None] * env.get_num_agents()
 
 score = 0.0
+nb_agents_done = 0
 final_step = 0
 for step in range(max_steps):
     env_renderer.render_env(
@@ -130,7 +130,7 @@ for step in range(max_steps):
                     show_observations=show_observations,
                     show_predictions=show_predictions
     )
-    time.sleep(0.5)
+    time.sleep(0.1)
     for agent in env.get_agent_handles():
         if obs[agent]:
             agent_obs[agent] = normalize_observation(obs[agent], tree_depth=observation_tree_depth, observation_radius=observation_radius)
@@ -147,5 +147,21 @@ for step in range(max_steps):
 
     final_step = step
 
+    # Print information every 10 episodes
+    if step%10 == 0:
+        task_finished = sum(done[agent] for agent in range(1, nb_agents))
+        print(done)
+        print("[INFO] Step {}\tAgents done: {}".format(
+            str(step).zfill(4),
+            task_finished
+        ), end="\n")
+
     if done['__all__']:
+        # task_finished = sum(done[agent] for agent in range(1, nb_agents))
+        # print("\n[COMPLETED] Step {}/{}\tAgents done: {}".format(
+        #     str(step).zfill(4),
+        #     max_steps,
+        #     task_finished
+        # ), end="\r")
+        print(done)
         break

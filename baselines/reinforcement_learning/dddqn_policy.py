@@ -21,7 +21,7 @@ class DDDQNPolicy(Policy):
 
         self.state_size = state_size
         self.action_size = action_size
-        self.double_dqn = True
+        self.double_dqn = False
         self.hidsize = 1
 
         if not evaluation_mode:
